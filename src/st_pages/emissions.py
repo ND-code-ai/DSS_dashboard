@@ -1,23 +1,23 @@
 import pandas as pd
-import altair as alt
 import streamlit as st
+import random
+from pyecharts.charts import Bar
+from pyecharts import options as opts
+from streamlit_echarts import st_pyecharts
 
-
-csv_file_path = 'data/reduced_energyc1.csv'
-nieuwe_dataset = reduced_energyc1.csv.loc[year, z (Wh/km),ID]
+# Load and process the data
+csv_file_path = '/Users/davidosinowo/Desktop/UU/Jaar1/Periode1/DSS/energy_consumption/energyc1.csv'
 df = pd.read_csv(csv_file_path)
 
-# Select specific columns
+# Select specific columns and filter data for the year 2023
 selected_columns = df[['ID', 'Country', 'Mk', 'Ft', 'z (Wh/km)', 'year', 'Electric range (km)']]
-
-# Filter data for the year 2023
 data_2023 = selected_columns[selected_columns['year'] == 2023]
 
 # Group by 'Country' and sum 'z (Wh/km)' for 2023
 total_z_per_country = data_2023.groupby('Country')['z (Wh/km)'].sum().reset_index()
 
 # Round the values to the nearest thousand
-total_z_per_country['z (Wh/km)'] = (total_z_per_country['z (Wh/km)'] / 1000).round(0)  # Round to the nearest thousand
+total_z_per_country['z (Wh/km)'] = (total_z_per_country['z (Wh/km)'] / 1000).round(0)
 
 # Create a mapping of country abbreviations to full names
 country_mapping = {
@@ -37,68 +37,36 @@ total_z_per_country['Country'] = total_z_per_country['Country'].replace(country_
 # Sort by the values to have the largest on the left
 total_z_per_country.sort_values(by='z (Wh/km)', ascending=False, inplace=True)
 
-# Prepare the data for Altair, ensuring 'Country' is ordered based on 'values'
-source = pd.DataFrame({
-    "Country": total_z_per_country['Country'],
-    "values": total_z_per_country['z (Wh/km)']
-})
+# Prepare the data for pyecharts
+countries = total_z_per_country['Country'].tolist()
+values = total_z_per_country['z (Wh/km)'].tolist()
 
-# Create a categorical type for the Country column based on the sorted values
-source['Country'] = pd.Categorical(source['Country'], categories=source['Country'], ordered=True)
-
-# Selection interactions
-hover = alt.selection_single(name="hover", fields=['Country'], empty="none")
-
-# Create an interactive bar chart
-bars = alt.Chart(source).mark_bar(
-    fill="#4C78A8", stroke="black", cursor="pointer"
-).encode(
-    x=alt.X('Country:N', title='Country'),  # Abbreviations on the X-axis
-    y=alt.Y('values:Q', title='Total Electric Energy Consumption (z Wh/km)', axis=alt.Axis(format='~s')),  # Format axis
-    fillOpacity=alt.condition(hover, alt.value(1), alt.value(0.3)),  # Adjust bar opacity on hover
-    strokeWidth=alt.condition(hover, alt.value(2), alt.value(0.5)),  # Stroke width on hover
-    color=alt.Color('Country:N', legend=None),  # Color bars by country
-    tooltip=['Country:N', 'values:Q']  # Add tooltip to show country and value
-).properties(
-    title='Total Electric Energy Consumption (z Wh/km) per Country in 2023',
-    width=600,
-    height=400
-).add_params(hover)
-
-# Create a textbox for the values
-text_background = alt.Chart(source).mark_rect(
-    fill='lightgray',  # Background color
-    opacity=0.8  # Background opacity
-).encode(
-    x=alt.X('Country:N'),
-    y=alt.Y('values:Q'),
-    size=alt.Size(value=40)  # Fixed size for the box
-).transform_filter(hover)
-
-# Add bold text to display values only on hover
-text = alt.Chart(source).mark_text(
-    align='center', dy=-10, color='black', fontWeight='bold'
-).encode(
-    x=alt.X('Country:N'),
-    y=alt.Y('values:Q'),
-    text=alt.condition(hover, 'values:Q', alt.value('')),  # Show text only on hover
-    opacity=alt.condition(hover, alt.value(1), alt.value(0))  # Make text appear on hover
+# Create the pyecharts bar chart
+bar_chart = (
+    Bar()
+    .add_xaxis(countries)  # Use countries on x-axis
+    .add_yaxis("Total Energy Consumption (z Wh/km)", values, label_opts=opts.LabelOpts(is_show=False))  # Hide labels
+    .set_global_opts(
+        title_opts=opts.TitleOpts(
+            title="Total Electric Energy Consumption by Country", 
+            subtitle="Data for 2023 (in thousands of Wh/km)"
+        ),
+        xaxis_opts=opts.AxisOpts(
+            axislabel_opts=opts.LabelOpts(is_show=True, font_size=8, rotate=45),  # Show labels, reduce font size, and rotate
+            splitline_opts=opts.SplitLineOpts(is_show=True),  # Optional: Show grid lines for better readability
+            interval=0  # Show all labels without skipping
+        ),
+        toolbox_opts=opts.ToolboxOpts(),  # Add toolbox options for interaction
+    )
 )
 
-# Combine bars, text background, and text
-chart = bars + text_background + text
+# Display the bar chart in Streamlit using st_pyecharts
+st_pyecharts(bar_chart, key="echarts")
 
-# Display the interactive chart
-chart
+# Add a button to randomize the data (for demonstration)
+if st.button("Randomize data"):
+    random_values = random.sample(range(100), len(countries))  # Randomize values just for fun
+    bar_chart.add_yaxis("Total Energy Consumption (z Wh/km)", random_values, label_opts=opts.LabelOpts(is_show=False))  # Hide labels
+    st_pyecharts(bar_chart, key="randomized_chart")
 
-# Load your data
-csv_file_path1 = 'data/energyc2.csv'  # Adjust the path as needed
-df = pd.read_csv(csv_file_path1)
-
-st.title("Energy Consumption Data")
-
-# Display the first few rows of the dataframe
-st.write(df.head())
-
-# You can add more functionality here, like plotting, filtering, etc.
-
+st.write("This is an interactive chart of the total electric energy consumption per country in 2023.")
