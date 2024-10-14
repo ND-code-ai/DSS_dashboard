@@ -6,7 +6,7 @@ from pyecharts import options as opts
 from streamlit_echarts import st_pyecharts
 
 # Load and process the data
-csv_file_path = '/Users/davidosinowo/Desktop/UU/Jaar1/Periode1/DSS/energy_consumption/energyc1.csv'
+csv_file_path = 'data/reduced_energyc1.csv'
 df = pd.read_csv(csv_file_path)
 
 # Select specific columns and filter data for the year 2023
