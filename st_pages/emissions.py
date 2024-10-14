@@ -2,7 +2,7 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 
-# Load the CSV file (update with your actual path)
+
 csv_file_path = 'data/energyc1.csv'
 df = pd.read_csv(csv_file_path)
 
