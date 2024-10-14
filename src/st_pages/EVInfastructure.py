@@ -36,4 +36,4 @@ def main():
 
         st.altair_chart(final_chart)
         st.write("<h1 style='font-size: 25px;'>This is a temporary chloreopleth map of Europe, it will be replace with interactive map</h1>", unsafe_allow_html=True)
-        st.image("map.png", use_column_width=True, caption="Electric Vehicle Charging Stations by Country", output_format="PNG")
+        st.image("data/map.png", use_column_width=True, caption="Electric Vehicle Charging Stations by Country", output_format="PNG")
