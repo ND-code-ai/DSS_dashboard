@@ -5,12 +5,11 @@ from pyecharts.charts import Bar
 from pyecharts import options as opts
 from streamlit_echarts import st_pyecharts
 
-# Load and process the data
-csv_file_path = 'data/reduced_energyc1.csv'
+csv_file_path = '/data/geodata/reduced_energyc1.csv'
 df = pd.read_csv(csv_file_path)
 
 # Select specific columns and filter data for the year 2023
-selected_columns = df[['ID', 'Country', 'Mk', 'Ft', 'z (Wh/km)', 'year', 'Electric range (km)']]
+selected_columns = df[['ID','Country','z (Wh/km)','year']]
 data_2023 = selected_columns[selected_columns['year'] == 2023]
 
 # Group by 'Country' and sum 'z (Wh/km)' for 2023
