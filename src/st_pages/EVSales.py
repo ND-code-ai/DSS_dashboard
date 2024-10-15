@@ -28,7 +28,46 @@ def main():
             width=1200,
             height=600
         )
-        final_chart = chart
+
+        # Country filtering
+        selected_countries = ['Germany', 'France', 'Netherlands', 'Sweden', 'Norway', 'Italy', 'Belgium', 'Denmark']
+        filtered_data = data[data['Country'].isin(selected_countries)]
+
+        # Melt data together
+        filtered_data_melted = filtered_data.melt(id_vars='Country', var_name='Year', value_name='Number of New Passenger Cars Sold')
+
+        # Year to numeric
+        filtered_data_melted['Year'] = pd.to_numeric(filtered_data_melted['Year'], errors='coerce')
+
+        # Create a selection for highlighting based on country
+        highlight = alt.selection_point(on='pointerover', fields=['Country'], nearest=True)
+
+        # create chart base
+        base = alt.Chart(filtered_data_melted).encode(
+            x='Year:O',
+            y='Number of New Passenger Cars Sold:Q',
+            color='Country:N'
+        )
+
+        # Adding invisible points for selection
+        points = base.mark_circle().encode(
+            opacity=alt.value(0)
+        ).add_params(
+            highlight
+        ).properties(
+            width=600,
+            height=400
+        )
+
+        # Adding line charts with size change on highlight
+        lines = base.mark_line().encode(
+            size=alt.condition(~highlight, alt.value(1), alt.value(3))
+        )
+
+        # Combine points and lines
+        chart2 = points + lines
+
+        final_chart = chart + chart2
 
         st.altair_chart(final_chart)
 
