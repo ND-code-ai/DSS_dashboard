@@ -5,7 +5,7 @@ from pyecharts.charts import Bar
 from pyecharts import options as opts
 from streamlit_echarts import st_pyecharts
 
-csv_file_path = '/data/geodata/reduced_energyc1.csv'
+csv_file_path = '/data/reduced_energyc1.csv'
 df = pd.read_csv(csv_file_path)
 
 # Select specific columns and filter data for the year 2023
