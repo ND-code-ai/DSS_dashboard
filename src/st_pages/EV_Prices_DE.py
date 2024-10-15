@@ -77,7 +77,7 @@ def main():
     ).properties(width=600, height=400).interactive()
     st.altair_chart(fast_charge_bar)
 
-# Price vs Acceleration
+    # Price vs Acceleration
     st.subheader('Price vs Acceleration')
     acceleration_scatter = alt.Chart(df).mark_circle(size=60, color='blue').encode(
         x=alt.X('acceleration..0.100.', title='Acceleration (0-100 km/h, seconds)'),
