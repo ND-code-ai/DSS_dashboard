@@ -1,29 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-#https://www.kaggle.com/datasets/fatihilhan/electric-vehicle-specifications-and-prices/data
-
 #Adding a white background with gridlines to increase readability of the plots
 sns.set(style="whitegrid")
 
-
-# In[3]:
 def main():
 
     df = pd.read_csv('data\EV_cars.csv')
     df
 
-
-# In[30]:
-
-
-#Price distribution of 360 EVs
+    #Price distribution of 360 EVs
 
     plt.figure(figsize=(12, 6))
     sns.histplot(df['Price.DE.'], bins=30, kde=True, color='#2F5597')
@@ -34,9 +24,6 @@ def main():
     plt.axvline(df['Price.DE.'].median(), color='black', linestyle='--', label='Median Price')
     plt.legend()
     plt.show()
-
-
-# In[20]:
 
 
     #Price vs Range
@@ -50,19 +37,16 @@ def main():
     plt.show()
 
 
-# In[24]:
+    #Price Categories vs Range
 
-
-#Price Categories vs Range
-
-#Creating price bins of 10k, from under 30k to over 70k
+    #Creating price bins of 10k, from under 30k to over 70k
     price_bins = [0, 30000, 40000, 50000, 60000, 70000, 80000, 100000, 200000]
     price_labels = ['<30k', '30-40k', '40-50k', '50-60k', '60-70k', '70k-80k', '80k-100k', '>100k']
 
-# Creating a new attribute for price category
+    # Creating a new attribute for price category
     df['Price_category'] = pd.cut(df['Price.DE.'], bins=price_bins, labels=price_labels)
 
-#Creating the boxplot
+    #Creating the boxplot
     plt.figure(figsize=(12, 6))
     sns.boxplot(x='Price_category', y='Range', data=df, palette='Blues')
     plt.title('Price Categories vs Range')
@@ -72,15 +56,12 @@ def main():
     plt.show()
 
 
-# In[25]:
+    #Efficiency comparison by price ranges of 10k
 
-
-#Efficiency comparison by price ranges of 10k
-
-# Calculate the average efficiency by price category
+    #Calculate the average efficiency by price category
     efficiency_by_price = df.groupby('Price_category')['Efficiency'].mean().reset_index()
 
-#Creating the barplot
+    #Creating the barplot
     plt.figure(figsize=(10, 6))
     sns.barplot(x='Efficiency', y='Price_category', data=efficiency_by_price, palette='Blues')
     plt.title('Price categories vs Efficiency')
@@ -89,12 +70,9 @@ def main():
     plt.show()
 
 
-# In[61]:
+    #Price vs Charging time in minutes
 
-
-#Price vs Charging time in minutes
-
-#Creating the scatterplot
+    #Creating the scatterplot
     plt.figure(figsize=(10, 6))
     sns.scatterplot(x='Price.DE.', y='Fast_charge', data=df, color='blue', alpha=0.7)
     plt.title('Price vs. Fast-Charging Time')
@@ -104,15 +82,12 @@ def main():
     plt.show()
 
 
-# In[26]:
+    #Price categories vs Fast charging time in minutes 
 
-
-#Price categories vs Fast charging time in minutes 
-
-#Calculating the average fast charge
+    #Calculating the average fast charge
     avg_fast_charge = df.groupby('Price_category')['Fast_charge'].mean().reset_index()
 
-#Creating the barplot
+    #Creating the barplot
     plt.figure(figsize=(10, 6))
     sns.barplot(x='Price_category', y='Fast_charge', data=avg_fast_charge, palette='Blues')
     plt.title('Price categories vs Fast-Charging Time')
@@ -121,12 +96,10 @@ def main():
     plt.show()
 
 
-# In[19]:
 
+    #Price vs Acceleration
 
-#Price vs Acceleration
-
-#Creating the scatterplot
+    #Creating the scatterplot
     plt.figure(figsize=(10, 6))
     sns.scatterplot(x='acceleration..0.100.', y='Price.DE.', data=df , color='blue')
     plt.title('Price vs Acceleration')
@@ -135,12 +108,9 @@ def main():
     plt.show()
 
 
-# In[53]:
+    #Price vs Top Speed
 
-
-#Price vs Top Speed
-
-#Creating the scatterplot
+    #Creating the scatterplot
     plt.figure(figsize=(12, 6))
     sns.scatterplot(x='Price.DE.', y='Top_speed', data=df, color='blue', alpha=0.7)
     plt.title('Price vs Top Speed')
@@ -150,12 +120,9 @@ def main():
     plt.show()
 
 
-# In[16]:
+    #Price vs Battery Capacity
 
-
-#Price vs Battery Capacity
-
-#Creating the scatterplot
+    #Creating the scatterplot
     plt.figure(figsize=(12, 6))
     sns.scatterplot(x='Price.DE.', y='Battery', data=df, color='blue', alpha=0.7)
     plt.title('Price vs Battery Capacity')
