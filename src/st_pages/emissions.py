@@ -77,7 +77,7 @@ def main():
 
 
     # Load and process the data for the multiple-year chart
-    selected_columns = df[['ID', 'Country', 'Mk', 'Ft', 'z (Wh/km)', 'year', 'Electric range (km)']]
+    selected_columns = df[['ID', 'Country', 'z (Wh/km)', 'year']]
 
     # Replace country abbreviations with full names
     selected_columns['Country'] = selected_columns['Country'].replace(country_mapping)
