@@ -15,7 +15,7 @@ sns.set(style="whitegrid")
 
 # In[3]:
 
-df = pd.read_csv('C:/Users/michi/OneDrive/Documenten/Studie/Master/DSS/EV_cars.csv')
+df = pd.read_csv('data\EV_cars.csv')
 df
 
 
