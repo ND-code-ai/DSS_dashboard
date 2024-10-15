@@ -55,8 +55,8 @@ def main():
         ).add_params(
             highlight
         ).properties(
-            width=600,
-            height=400
+            width=1200,
+            height=600
         )
 
         # Adding line charts with size change on highlight
@@ -67,9 +67,10 @@ def main():
         # Combine points and lines
         chart2 = points + lines
 
-        final_chart = chart + chart2
+        final_chart = chart
 
         st.altair_chart(final_chart)
+        st.altair_chart(chart2)
 
 
 
