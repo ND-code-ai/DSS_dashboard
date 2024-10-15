@@ -31,10 +31,6 @@ To run the dashboard make sure you have a valid docker installation on machine. 
     emissions.py
     Data collection and preparation of total electric energy consumption per European country in 2023 and generated bar chart to visualise it.
 
-    EV_em_and_sale.ipynb
-    Data preparation of Eurostat data for average CO2 emissions per km from new passenger cars and number of new EVs per country. Generated line and bar plots to visualise trends over time. 
-    Currently not added on dashboard.
-
     EV_Prices_DE.py
     Plots on EV prices and its relation to various factors in Germany.
 
