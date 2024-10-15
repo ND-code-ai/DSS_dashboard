@@ -3,7 +3,6 @@
 
 # In[2]:
 
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,7 +14,6 @@ sns.set(style="whitegrid")
 
 
 # In[3]:
-
 
 df = pd.read_csv('C:/Users/michi/OneDrive/Documenten/Studie/Master/DSS/EV_cars.csv')
 df
