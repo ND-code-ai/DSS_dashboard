@@ -80,7 +80,7 @@ def main():
 
         # Multi-select dropdown to choose up to 8 countries
         selected_countries = st.multiselect(
-            "Select up to 8 countries to generate a line chart:",
+            "Select up to 8 countries to generate a line chart for comparison:",
             options=df_long['Country'].unique(),
             max_selections=8
         )
