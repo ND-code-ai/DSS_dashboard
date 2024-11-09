@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import requests
+from sklearn.linear_model import LinearRegression
 
 def main():
 
@@ -14,39 +15,86 @@ def main():
 
     # Get data "Average CO2 emissions per km from new passenger cars" with API
     url = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sdg_13_31/?format=JSON&lang=en"
-        
+
     # Request the data
     response = requests.get(url)
 
     # Parse the JSON response
     data = response.json()
-        
+
     values = data['value']
     geo_labels = data['dimension']['geo']['category']['label']
     geo_indices = data['dimension']['geo']['category']['index']
     time_labels = data['dimension']['time']['category']['label']
-    time_indices = data['dimension']['time']['category']['index']    
-        
-    # Create a sorted list of full country names based on the index
+    time_indices = data['dimension']['time']['category']['index']
+
+    # Create a sorted list countries based on the index
     sorted_countries = [geo_labels[code] for code in sorted(geo_indices, key=geo_indices.get)]
     sorted_times = sorted(time_indices, key=time_indices.get)
 
-    # Create an empty DataFrame to store the data with full country names
-    df = pd.DataFrame(index=sorted_countries, columns=sorted_times)
+    # Convert time_labels (years) to integers
+    time_years = [int(time_labels[code]) for code in sorted_times]
 
-    # Populate the DataFrame with the values
+    # Create a DataFrame to store data from the JSON response
+    df = pd.DataFrame(index=sorted_countries, columns=time_years)
+
+    # Insert the values from the JSON response in the DataFrame
     for index, value in values.items():
-    # Since the index is a single key, we need to map it to the correct country and time
-        country_idx = int(index) // len(time_indices)  # Determinec which country the value belongs to
+        country_id = int(index) // len(time_indices)  # Determine which country the value belongs to
         time_idx = int(index) % len(time_indices)      # Determine which time period the value belongs to
 
-    # Get the actual country name and time label
-        country_code = list(geo_indices.keys())[country_idx]
-        country = geo_labels[country_code]  # Use full country name
-        time = time_labels[list(time_indices.keys())[time_idx]]
+        # Get the actual country name and time label
+        country_code = list(geo_indices.keys())[country_id]
+        country = geo_labels[country_code]
+        time = int(time_labels[list(time_indices.keys())[time_idx]])
 
-    # Insert the value into the correct place in the DataFrame
-        df.loc[country, time] = value    
+        # Insert the value into the correct place in the DataFrame
+        df.loc[country, time] = value
+
+    ############################
+    # Fill missing values using regression
+    ############################
+
+    # define a function to fill NaN values with linear regression
+    def new_values(country_data, start_period, end_period):
+        # Filter the data by the time period
+        period_data = country_data.loc[start_period:end_period]
+        
+        # Drop NaNs so we can use the remaining data to train our model
+        non_nan = period_data.dropna()
+        
+        # in case of less than 2 values in the period, we do not fill the missing values, but use 0.0
+        if len(non_nan) < 2:
+            period_data = period_data.astype(float)
+            period_data.fillna(0.0, inplace=True)
+            return period_data
+        
+        # makes a numpy array which is used to prepare the data for the regression model
+        x = np.array([year for year in non_nan.index]).reshape(-1, 1)  # years
+        y = non_nan.values  #emissions data
+        
+        '''
+        Here we use the linear regression function to predict the emissions for the missing years.
+        First we train the model, then we use a loop to predict the missing values that had NaN 
+        '''
+        model = LinearRegression().fit(x, y)
+        missing_years = period_data[period_data.isna()].index
+        for year in missing_years:
+            predicted_value = model.predict([[year]])
+            period_data[year] = round(predicted_value[0], 1)
+        
+        return period_data
+
+    # we apply the function to two periods, because after 2016 there is an different measurement model in the data from eurostats
+    Latest_year=df.columns[-1]
+
+    for country in df.index:
+        period_2000_2016 = df.loc[country, 2000:2016]
+        period_2017_onwards = df.loc[country, 2017:Latest_year]
+        
+        # Fill NaN values with linear regression
+        df.loc[country, 2000:2016] = new_values(period_2000_2016, 2000, 2016)
+        df.loc[country, 2017:Latest_year] = new_values(period_2017_onwards, 2017, Latest_year)
 
     # Exploring the data
     print(df.head())  
