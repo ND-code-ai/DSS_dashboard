@@ -8,8 +8,8 @@ def main():
     df = pd.read_csv('data/EV_cars.csv')
 
     # Define price categories
-    price_bins = [0, 30000, 40000, 50000, 60000, 70000, 80000, 100000, 200000]
-    price_labels = ['<30k', '30-40k', '40-50k', '50-60k', '60-70k', '70k-80k', '80k-100k', '>100k']
+    price_bins = [0, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 200000]
+    price_labels = ['<30k', '30-40k', '40-50k', '50-60k', '60-70k', '70k-80k', '80k-900k', '>90k']
     df['Price_category'] = pd.cut(df['Price.DE.'], bins=price_bins, labels=price_labels)
 
     # Title and Dropdown Menus for Chart Selection
