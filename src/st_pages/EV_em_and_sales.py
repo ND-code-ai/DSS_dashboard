@@ -7,6 +7,35 @@ import altair as alt
 import requests
 from sklearn.linear_model import LinearRegression
 
+def new_values(country_data, start_period, end_period):
+        # Filter the data by the time period
+        period_data = country_data.loc[start_period:end_period]
+        
+        # Drop NaNs so we can use the remaining data to train our model
+        non_nan = period_data.dropna()
+        
+        # in case of less than 2 values in the period, we do not fill the missing values, but use 0.0
+        if len(non_nan) < 2:
+            period_data = period_data.astype(float)
+            period_data.fillna(0.0, inplace=True)
+            return period_data
+        
+        # makes a numpy array which is used to prepare the data for the regression model
+        x = np.array([year for year in non_nan.index]).reshape(-1, 1)  # years
+        y = non_nan.values  #emissions data
+        
+        '''
+        Here we use the linear regression function to predict the emissions for the missing years.
+        First we train the model, then we use a loop to predict the missing values that had NaN 
+        '''
+        model = LinearRegression().fit(x, y)
+        missing_years = period_data[period_data.isna()].index
+        for year in missing_years:
+            predicted_value = model.predict([[year]])
+            period_data[year] = round(predicted_value[0], 1)
+        
+        return period_data
+
 def main():
 
     ############################
@@ -56,34 +85,7 @@ def main():
     ############################
 
     # define a function to fill NaN values with linear regression
-    def new_values(country_data, start_period, end_period):
-        # Filter the data by the time period
-        period_data = country_data.loc[start_period:end_period]
-        
-        # Drop NaNs so we can use the remaining data to train our model
-        non_nan = period_data.dropna()
-        
-        # in case of less than 2 values in the period, we do not fill the missing values, but use 0.0
-        if len(non_nan) < 2:
-            period_data = period_data.astype(float)
-            period_data.fillna(0.0, inplace=True)
-            return period_data
-        
-        # makes a numpy array which is used to prepare the data for the regression model
-        x = np.array([year for year in non_nan.index]).reshape(-1, 1)  # years
-        y = non_nan.values  #emissions data
-        
-        '''
-        Here we use the linear regression function to predict the emissions for the missing years.
-        First we train the model, then we use a loop to predict the missing values that had NaN 
-        '''
-        model = LinearRegression().fit(x, y)
-        missing_years = period_data[period_data.isna()].index
-        for year in missing_years:
-            predicted_value = model.predict([[year]])
-            period_data[year] = round(predicted_value[0], 1)
-        
-        return period_data
+    
 
     # we apply the function to two periods, because after 2016 there is an different measurement model in the data from eurostats
     Latest_year=df.columns[-1]
