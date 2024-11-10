@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import numpy as np
 import requests
 
 def main():
@@ -40,6 +41,9 @@ def main():
         # Insert the value into the correct place in the DataFrame
         df.loc[country, time] = value
 
+    # Replace 0 values with NaN
+    df.replace(0, np.nan, inplace=True)
+
     with st.container():
         # Input field for selecting the country
         country = st.text_input("Please enter an European country (e.g. Spain) for a tailored bar chart (case sensitive!):", "European Union")
@@ -74,7 +78,7 @@ def main():
     with st.container():
 
         # Rename the index column to Country for filtering
-        df = df.reset_index().rename(columns={'index': 'Country'})
+        df = df.reset_index().rename(columns={'index': 'Country'})      
         # Create a df_long to include year numbers
         df_long = df.melt(id_vars='Country', var_name='Year', value_name='Number of New Passenger Cars Sold')
 
