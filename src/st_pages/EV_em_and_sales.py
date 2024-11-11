@@ -102,7 +102,7 @@ def main():
     # Bar plots
     lst = df_em['Country'].unique()
     input_dropdown = alt.binding_select(options=lst, name='Country ')
-    selection = alt.selection_point(fields=['Country'], bind=input_dropdown)
+    selection = alt.selection_point(fields=['Country'], bind=input_dropdown, value = 'Austria')
 
     # Interactive bar chart for just emissions
     bar_chart = alt.Chart(df_em).mark_bar().encode(
