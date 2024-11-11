@@ -35,6 +35,18 @@ def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
     print("Power available per fleet: ", df.loc[get_outlier_indices_IQR_method(df['Power available per fleet']), 'Country'].values)
     return df
 
+def preprocess_emissions_data(csv_file_path: str) -> pd.DataFrame: #dataframe
+    df = pd.read_csv(csv_file_path)
+    df = df[['ID', 'Country', 'z (Wh/km)', 'year']]
+    df.dropna(subset=['z (Wh/km)'], inplace=True)
+    
+    outlier_indices = get_outlier_indices_IQR_method(df['z (Wh/km)'].to_numpy())
+    print("Outliers in 'z (Wh/km)' at indices:", outlier_indices)
+    
+    df = df.drop(index=outlier_indices[0])
+
+    return df
+
 def preprocess_EV_sales(df: pd.DataFrame) -> pd.DataFrame:
     pass
 
@@ -43,7 +55,9 @@ def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     all_dataframes = {}
-
+    
+    emissions_data = preprocess_emissions_data('data/reduced_energyc1.csv')
+    all_dataframes['Emissions'] = emissions_data
     noc_data = pd.read_csv('src/data/scraped_NoC_data.csv')
     cleaned_noc_data = preprocess_EV_infrastructure(noc_data)
     all_dataframes['EV infrastructure'] = cleaned_noc_data
