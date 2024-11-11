@@ -48,6 +48,7 @@ def preprocess_emissions_data(csv_file_path: str) -> pd.DataFrame: #dataframe
     return df
 
 def preprocess_EV_sales(df: pd.DataFrame) -> pd.DataFrame:
+    df.replace(0, np.nan, inplace=True)
     pass
 
 def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
