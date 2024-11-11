@@ -16,7 +16,7 @@ def main():
     st.title('Electric Vehicle Data Visualizations')
     
     # Dropdown for price charts
-    chart_option = st.selectbox('Choose a General Chart', [
+    price_chart_option = st.selectbox('Choose a Price vs Attribute Chart', [
         'Price Distribution',
         'Price vs Range',
         'Price vs Fast-Charging Time',
@@ -26,7 +26,7 @@ def main():
     ])
     
     # Dropdown for price category charts
-    price_category_option = st.selectbox('Choose a Price Category Chart', [
+    price_category_option = st.selectbox('Choose a Price Category vs Attribute Chart', [
         'Price Categories vs Range',
         'Price Categories vs Efficiency',
         'Price Categories vs Fast-Charging Time'
@@ -35,7 +35,7 @@ def main():
 # Display the selected general chart
     
     #Price Distribution
-    if chart_option == 'Price Distribution':
+    if price_chart_option == 'Price Distribution':
         st.subheader('Price Distribution of Electric Vehicles')
         price_hist = alt.Chart(df).mark_bar().encode(
             alt.X('Price.DE.:Q', bin=alt.Bin(maxbins=30), title='Price (EUR)'),
@@ -51,7 +51,7 @@ def main():
         st.altair_chart(price_hist + mean_rule + median_rule)
 
     #Price vs. Range
-    elif chart_option == 'Price vs Range':
+    elif price_chart_option == 'Price vs Range':
         st.subheader('Price vs Range')
         price_range_scatter = alt.Chart(df).mark_circle(size=60, color='blue').encode(
             x=alt.X('Range:Q', title='Range (km)'),
@@ -61,7 +61,7 @@ def main():
         st.altair_chart(price_range_scatter)
 
     #Price vs. Fast-Charing Time
-    elif chart_option == 'Price vs Fast-Charging Time':
+    elif price_chart_option == 'Price vs Fast-Charging Time':
         st.subheader('Price vs Fast-Charging Time')
         charging_scatter = alt.Chart(df).mark_circle(size=60, color='blue').encode(
             x=alt.X('Price.DE.:Q', title='Price (EUR)'),
@@ -71,7 +71,7 @@ def main():
         st.altair_chart(charging_scatter)
 
     #Price vs. Acceleration
-    elif chart_option == 'Price vs Acceleration':
+    elif price_chart_option == 'Price vs Acceleration':
         st.subheader('Price vs Acceleration')
         acceleration_scatter = alt.Chart(df).mark_circle(size=60, color='blue').encode(
             x=alt.X('acceleration..0.100.:Q', title='Acceleration (0-100 km/h, seconds)'),
@@ -81,7 +81,7 @@ def main():
         st.altair_chart(acceleration_scatter)
 
     #Price vs. Top Speed
-    elif chart_option == 'Price vs Top Speed':
+    elif price_chart_option == 'Price vs Top Speed':
         st.subheader('Price vs Top Speed')
         top_speed_scatter = alt.Chart(df).mark_circle(size=60, color='blue').encode(
             x=alt.X('Price.DE.:Q', title='Price (EUR)'),
@@ -91,7 +91,7 @@ def main():
         st.altair_chart(top_speed_scatter)
 
     #Price vs. Battery Capacity
-    elif chart_option == 'Price vs Battery Capacity':
+    elif price_chart_option == 'Price vs Battery Capacity':
         st.subheader('Price vs Battery Capacity')
         battery_scatter = alt.Chart(df).mark_circle(size=60, color='blue').encode(
             x=alt.X('Price.DE.:Q', title='Price (EUR)'),
