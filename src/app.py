@@ -1,6 +1,6 @@
 import streamlit as st
 import altair as alt
-from st_pages import EVInfastructure, EVSales, emissions, green_energy, home, EV_Prices_DE, EV_em_and_sales
+from st_pages import EV_Infrastructure, EVSales, emissions, green_energy, home, EV_Prices_DE, EV_em_and_sales
 
 
 st.set_page_config(
@@ -23,7 +23,7 @@ if selected_kpi == "---":
     
 if selected_kpi == "Number of charging stations":
     st.title("EV Infrastructure - Number of Charging Stations")
-    EVInfastructure.main()
+    EV_Infrastructure.main()
 
 elif selected_kpi == "EV sales":
     st.title("Increasing EV adoption - EV Sales")
