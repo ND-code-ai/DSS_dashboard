@@ -1,40 +1,10 @@
 # Libraries
 import numpy as np
-import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
 import altair as alt
 import requests
 from sklearn.linear_model import LinearRegression
-
-def new_values(country_data, start_period, end_period):
-        # Filter the data by the time period
-        period_data = country_data.loc[start_period:end_period]
-        
-        # Drop NaNs so we can use the remaining data to train our model
-        non_nan = period_data.dropna()
-        
-        # in case of less than 2 values in the period, we do not fill the missing values, but use 0.0
-        if len(non_nan) < 2:
-            period_data = period_data.astype(float)
-            period_data.fillna(0.0, inplace=True)
-            return period_data
-        
-        # makes a numpy array which is used to prepare the data for the regression model
-        x = np.array([year for year in non_nan.index]).reshape(-1, 1)  # years
-        y = non_nan.values  #emissions data
-        
-        '''
-        Here we use the linear regression function to predict the emissions for the missing years.
-        First we train the model, then we use a loop to predict the missing values that had NaN 
-        '''
-        model = LinearRegression().fit(x, y)
-        missing_years = period_data[period_data.isna()].index
-        for year in missing_years:
-            predicted_value = model.predict([[year]])
-            period_data[year] = round(predicted_value[0], 1)
-        
-        return period_data
 
 def main():
 
@@ -80,32 +50,46 @@ def main():
         # Insert the value into the correct place in the DataFrame
         df.loc[country, time] = value
 
-    ############################
-    # Fill missing values using regression
-    ############################
+    ##########################################
+    ## Impute missing values using regression
+    ##########################################
 
     # define a function to fill NaN values with linear regression
     
+    def predict_missing_values(country: str, proportion_nan_allowed: float = 0.5):
+        is_nan = df.loc[country].isna()
+        proportion_nan = is_nan.sum() / len(is_nan)
 
-    # we apply the function to two periods, because after 2016 there is an different measurement model in the data from eurostats
-    Latest_year=df.columns[-1]
+        if proportion_nan > proportion_nan_allowed:
+            print(f"Skipping {country} because {proportion_nan:.2f} of the values are missing")
+            return (None, None)
+        elif proportion_nan == 0:
+            print(f"Skipping {country} because there are no missing values")
+            return (None, None)
+        
+        print(f"Predicting missing values for {country}")
+        filtered_nan_year_index = df.loc[country,:].loc[is_nan].index
+        filtered_non_nan: pd.Series = df.loc[country,:].dropna().astype(float)
+        filtered_non_nan_values: np.ndarray = filtered_non_nan.values.reshape(-1, 1)
+
+        non_nan_years = np.array([int(year) for year in filtered_non_nan.index]).reshape(-1, 1)
+        model = LinearRegression().fit(non_nan_years, filtered_non_nan_values)
+
+        predicted_values = model.predict(np.array([int(year) for year in filtered_nan_year_index]).reshape(-1, 1))
+        return filtered_nan_year_index, predicted_values.flatten()
 
     for country in df.index:
-        period_2000_2016 = df.loc[country, 2000:2016]
-        period_2017_onwards = df.loc[country, 2017:Latest_year]
-        
-        # Fill NaN values with linear regression
-        df.loc[country, 2000:2016] = new_values(period_2000_2016, 2000, 2016)
-        df.loc[country, 2017:Latest_year] = new_values(period_2017_onwards, 2017, Latest_year)
-
+        filtered_nan_year_index, predicted_values = predict_missing_values(country)
+        if filtered_nan_year_index is not None:
+            df.loc[country, filtered_nan_year_index] = predicted_values
+            
+    df = df.dropna()
+   
     # Exploring the data
     print(df.head())  
-
     print(type(df))
     print(str(df))
-
     print(df.describe())
-
     print(df.columns)
 
     # Melting the data such that the seperate column years will become one column: "Year"
@@ -114,32 +98,13 @@ def main():
     df_em = df_em.sort_values(by=['Country', 'Year'])
     print(df_em.head())
 
-
     # Exploring the trend of emissions over the years for each country
-        # Line plots
-    lst = df_em['Country'].unique()
-    for ls in lst:
-        df_em_a = df_em[df_em['Country'] == ls]
-        plt.plot('Year','Emissions',data=df_em_a)
-        plt.title(f'Emissions {ls}')
-        plt.xticks(rotation=75)
-        plt.show()
-
-        # Bar plots
-    lst = df_em['Country'].unique()
-    for ls in lst:
-        df_em_b = df_em[df_em['Country'] == ls]
-        plt.bar('Year','Emissions',data=df_em_b)
-        plt.title(f'Emissions {ls}')
-        plt.xticks(rotation=75)
-        plt.show()
-
+    # Bar plots
     lst = df_em['Country'].unique()
     input_dropdown = alt.binding_select(options=lst, name='Country ')
     selection = alt.selection_point(fields=['Country'], bind=input_dropdown)
 
-
-    # Trying out a interactive bar chart for just emissions
+    # Interactive bar chart for just emissions
     bar_chart = alt.Chart(df_em).mark_bar().encode(
         x='Year:O', 
         y='Emissions:Q',
@@ -172,8 +137,6 @@ def main():
     df_EV = pd.melt(df2, id_vars='Country', value_vars= df2.iloc[1:],
                                     var_name = 'Year', value_name = 'Nr_of_new_EVs')
     df_EV = df_EV.sort_values(by=['Country', 'Year'])
-    print(df_EV.head())
-    print(df_EV.tail())
 
     ############################
     ## BOTH DATASETS
@@ -193,111 +156,145 @@ def main():
     # Turning Nr_of_new_EVs into an integer for easier working with the data
     df_all['Nr_of_new_EVs'] = df_all['Nr_of_new_EVs'].astype('str').str.replace(".", "") # Turning it into a string and removing the thousands seperators
     df_all['Nr_of_new_EVs'] = df_all['Nr_of_new_EVs'].replace(":", np.nan).astype('float').astype('Int64') # due to NaN's, turning the variable first into floats necessary
-    print(df_all.dtypes)
-
-    print(df_all)
+    print(df_all.dtypes)  
     
-    
-    
-    ###############################################
-    ## VERY PROFESSIONAL TRYOUT REMOVING NA'S
-    ################################################
-    #n = 1     # check previous and next (1) entry
-    # rolling window size is (2n + 1)
-    #try_out = (df_all['Nr_of_new_EVs'].rolling(n * 2 + 1, min_periods=1, center=True)
-    #                                  .mean())
-    # Update into a new column `Consumption_New` for demo purpose
-    #df_all['Nr_of_new_EVs_New'] = df_all['Nr_of_new_EVs']    
-    #df_all.loc[df_all['Nr_of_new_EVs'] == 0, 'Nr_of_new_EVs_New'] = Consumption_mean
-    #df_all
-
-
-
-
     # Cutting the years at 2017, as the metadata states that data is only comparable for 2000 - 2016 and for 2017 - now
         # Subsetting data for years 2000 - 2016
     df_00_16 = df_all[df_all['Year'] <= 2016]
-    print(df_00_16.head)
 
         # Subsetting data for years 2017 - now
     df_17_up = df_all[df_all['Year'] >= 2017]
-    print(df_17_up.head)
 
     ############################
-    ## PLOTS PLOTS PLOTS
+    ## PLOTS
     ############################
 
-    # Dropdown for price charts
-    chart_option = st.selectbox('Choose a Period of Time', [
-        '2000 - 2016',
-        '2017 and up'
-        ])
+    # Chart depicting relationship between emissions and number of new EVs over the years for period 2000-2016
 
-    if chart_option == '2000 - 2016':
-        base = alt.Chart(df_00_16).encode(
-            alt.X('Year:O').title('Year'))
+    base = alt.Chart(df_00_16).encode(
+        alt.X('Year:O').title('Year'))
 
-        bar_chart2 = base.mark_bar().encode(
-            alt.Y('Emissions:Q').title('Emissions'),
-            tooltip=['Year', 'Emissions']
-        ).add_params(
-            selection
-        ).transform_filter(
-            selection
-        ).properties(
-            title=(f'Average C02 emissions per km from new passenger cars for selected country'),
-            width=400,
-            height=450
-        )    
+    bar_chart2 = base.mark_bar().encode(
+        alt.Y('Emissions:Q').title('Emissions'),
+        tooltip=['Year', 'Emissions'],
+        color=alt.value('#93a8cc')
+    ).add_params(
+        selection
+    ).transform_filter(
+        selection
+    ).properties(
+        title=(f'Average C02 emissions per km from new passenger cars for selected country'),
+        width=400,
+        height=450
+    )    
 
-        line_chart = base.mark_line(stroke='#57A44C', interpolate='monotone').encode(
-            alt.Y('Nr_of_new_EVs').title('Nr of new EVs'),
-            tooltip=['Year', 'Nr_of_new_EVs']
-        ).add_params(
-            selection
-        ).transform_filter(
-            selection
-        ).properties(
-            width=400,
-            height=450
-        )    
+    line_chart = base.mark_line(stroke='#203864', interpolate='monotone').encode(
+        alt.Y('Nr_of_new_EVs').title('Nr of new EVs'),
+        tooltip=['Year', 'Nr_of_new_EVs']
+    ).add_params(
+        selection
+    ).transform_filter(
+        selection
+    ).properties(
+        width=400,
+        height=450
+    )    
             
-        full_chart = alt.layer(bar_chart2, line_chart).resolve_scale(y='independent')
+    full_chart_00_16 = alt.layer(bar_chart2, line_chart).resolve_scale(
+        y='independent'
+    )
             
-        full_chart
+    full_chart_00_16
         
         
-    if chart_option == '2017 and up':
-        base2 = alt.Chart(df_17_up).encode(
-            alt.X('Year:O').title('Year'))
+    # Chart depicting relationship between emissions and number of new EVs over the years for period 2000-2016
+    base2 = alt.Chart(df_17_up).encode(
+        alt.X('Year:O').title('Year'))
 
-        bar_chart3 = base2.mark_bar().encode(
-            alt.Y('Emissions:Q').title('Emissions'),
-            tooltip=['Year', 'Emissions']
-        ).add_params(
-            selection
-        ).transform_filter(
-            selection
-        ).properties(
-            title=(f'Average C02 emissions per km from new passenger cars for selected country'),
-            width=400,
-            height=450
-        )    
+    bar_chart3 = base2.mark_bar().encode(
+        alt.Y('Emissions:Q').title('Emissions'),
+        tooltip=['Year', 'Emissions'],
+        color=alt.value('#93a8cc')
+    ).add_params(
+        selection
+    ).transform_filter(
+        selection
+    ).properties(
+        title=(f'Average C02 emissions per km from new passenger cars for selected country'),
+        width=400,
+        height=450
+    )    
 
-        line_chart2 = base2.mark_line(stroke='#57A44C', interpolate='monotone').encode(
-            alt.Y('Nr_of_new_EVs').title('Nr of new EVs'),
-            tooltip=['Year', 'Nr_of_new_EVs']
-        ).add_params(
-            selection
-        ).transform_filter(
-            selection
-        ).properties(
-            width=400,
-            height=450
-        )    
+    line_chart2 = base2.mark_line(stroke='#203864', interpolate='monotone').encode(
+        alt.Y('Nr_of_new_EVs').title('Nr of new EVs'),
+        tooltip=['Year', 'Nr_of_new_EVs']
+    ).add_params(
+        selection
+    ).transform_filter(
+        selection
+    ).properties(
+        width=400,
+        height=450
+    )    
             
-        full_chart2 = alt.layer(bar_chart3, line_chart2).resolve_scale(y='independent')
+    full_chart_17_up = alt.layer(bar_chart3, line_chart2).resolve_scale(
+        y='independent'
+    )
             
-        full_chart2
+    full_chart_17_up
         
-        st.altair_chart(full_chart, full_chart2)
+    st.altair_chart(full_chart_17_up)
+    st.write("<h1 style='font-size: 25px;'>Interactive graph depicting the relationship between average C02 emissions from new passenger cars and number of new EVs</h1>", unsafe_allow_html=True)
+    
+
+    
+    
+    ########################
+    ## Predictive analysis
+    #########################
+
+    # Due to time and experience constraints, we did not succeed in fully working out a predictive plot and analysis. 
+    # However, we did think about it and tried, which we documented here to show in what direction we were thinking.
+    # Additionally, while there are not enough observations such that we have to interpret the results with caution,
+    # they do give us some insight in the relationship
+
+    # We will only do this for the years of 2017 and up, as there is too much uncertainty on the missing values for EVs in the years prior to 2017
+    # Additionally, in each country there are not enough observations to use train and test sets
+    # Therefore, this part is inspiration for future use and analysis
+
+    # Loading necessary libraries
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+
+    # Remove European Union - aggregated instance, as it has no values for Nr of new EVs
+    # create a Boolean mask for the rows to remove
+    mask = df_17_up['Country'] == 'European Union - 27 countries (from 2020)'
+
+    # select all rows except the ones that contain 'European Union - 27 countries (from 2020)'
+    df_17_up = df_17_up[~mask]
+    print(df_17_up.isnull().sum(axis = 0))
+
+    # Changing vars to numeric, such that regressions can be done
+    df_17_up['Emissions'] = pd.to_numeric(df_17_up['Emissions'])
+    df_17_up['Nr_of_new_EVs'] = pd.to_numeric(df_17_up['Nr_of_new_EVs'])
+    df_17_up['Year'] = pd.to_numeric(df_17_up['Year'])
+
+    print(df_17_up.head())
+
+    # Normalizing the data of interest
+    df_17_up['Emissions_norm'] = df_17_up['Emissions']  / df_17_up['Emissions'].abs().max()
+    df_17_up['New_EVs_norm'] = df_17_up['Nr_of_new_EVs']  / df_17_up['Nr_of_new_EVs'].abs().max()
+    df_17_up['Year_norm'] = df_17_up['Year']  / df_17_up['Year'].abs().max()
+
+
+    ## Multilevel model - relationships nested in countries
+    # As the data is nested in countries, we  obtain model results from a multilevel model with country as the 
+    # grouping variable
+
+    model_ML = smf.mixedlm("Emissions_norm ~ New_EVs_norm", df_17_up, groups=df_17_up["Country"])
+    #Fit the model
+    result_ML = model_ML.fit()
+    #Print model summary
+    print(result_ML.summary())
+    
+
