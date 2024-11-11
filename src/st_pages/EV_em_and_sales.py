@@ -207,7 +207,7 @@ def main():
     full_chart_00_16
         
         
-    # Chart depicting relationship between emissions and number of new EVs over the years for period 2000-2016
+    # Chart depicting relationship between emissions and number of new EVs over the years for period 2017 and up
     base2 = alt.Chart(df_17_up).encode(
         alt.X('Year:O').title('Year'))
 
@@ -221,8 +221,8 @@ def main():
         selection
     ).properties(
         title=(f'Average C02 emissions per km from new passenger cars for selected country'),
-        width=400,
-        height=450
+        width=500,
+        height=550
     )    
 
     line_chart2 = base2.mark_line(stroke='#203864', interpolate='monotone').encode(
@@ -233,8 +233,8 @@ def main():
     ).transform_filter(
         selection
     ).properties(
-        width=400,
-        height=450
+        width=500,
+        height=550
     )    
             
     full_chart_17_up = alt.layer(bar_chart3, line_chart2).resolve_scale(
