@@ -3,3 +3,7 @@ pandas
 streamlit
 streamlit_echarts
 pyecharts
+sqlalchemy
+scikit-learn
+geopandas
+plotly.express

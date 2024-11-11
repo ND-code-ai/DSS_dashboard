@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+from load_db import load_data_to_db
 def get_outlier_indices_IQR_method(data:np.array) -> np.array:
     q1 = np.percentile(data, 25)
     q3 = np.percentile(data, 75)
@@ -44,13 +44,16 @@ def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
 def main():
     all_dataframes = {}
 
-    noc_data = pd.read_csv('data/src/scraped_NoC_data.csv')
+    noc_data = pd.read_csv('src/data/scraped_NoC_data.csv')
     cleaned_noc_data = preprocess_EV_infrastructure(noc_data)
-    all_dataframes['NoC'] = cleaned_noc_data
+    all_dataframes['EV infrastructure'] = cleaned_noc_data
 
-    # add more preprocessing function calls here
+    # insert other preprocessing functions and dataframes here
 
-    return all_dataframes
+    load_data_to_db(all_dataframes)
 
+
+if __name__ == '__main__':
+    main()
 
    
