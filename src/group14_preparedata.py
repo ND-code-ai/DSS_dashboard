@@ -90,23 +90,21 @@ def scrape_sales_data() -> pd.DataFrame:
     sales_data = df
 
     return sales_data
+
 def main():
     all_dataframes = {}
     
     sales_data = scrape_sales_data()
     cleaned_sales_data = preprocess_EV_sales(sales_data)
     all_dataframes['EV sales'] = cleaned_sales_data
-    ### Sales data
-
 
     emissions_data = preprocess_emissions_data('data/reduced_energyc1.csv')
     all_dataframes['Emissions'] = emissions_data
+
     noc_data = pd.read_csv('src/data/scraped_NoC_data.csv')
     cleaned_noc_data = preprocess_EV_infrastructure(noc_data)
     all_dataframes['EV infrastructure'] = cleaned_noc_data
 
-    # insert other preprocessing functions and dataframes here
-    print(cleaned_noc_data.head())
     return all_dataframes
 
 
