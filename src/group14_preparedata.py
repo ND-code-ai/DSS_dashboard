@@ -89,14 +89,14 @@ def scrape_sales_data() -> pd.DataFrame:
 def main():
     all_dataframes = {}
     
-    sales_data = scrape_sales_data()
-    cleaned_sales_data = preprocess_EV_sales(sales_data)
-    all_dataframes['EV sales'] = cleaned_sales_data
+    #sales_data = scrape_sales_data()
+    #cleaned_sales_data = preprocess_EV_sales(sales_data)
+    #all_dataframes['EV sales'] = cleaned_sales_data
 
-    emissions_data = preprocess_emissions_data('data/reduced_energyc1.csv')
-    all_dataframes['Emissions'] = emissions_data
+    #emissions_data = preprocess_emissions_data('data/reduced_energyc1.csv')
+    #all_dataframes['Emissions'] = emissions_data
 
-    noc_data = pd.read_csv('src/data/scraped_NoC_data.csv')
+    noc_data = pd.read_csv('data/scraped_NoC_data.csv')
     cleaned_noc_data = preprocess_EV_infrastructure(noc_data)
     all_dataframes['EV infrastructure'] = cleaned_noc_data
 
