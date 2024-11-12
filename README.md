@@ -5,7 +5,7 @@
 ---  
 
 # INFOMDDS - Dashboard
-The current dashboard shows the current state of EV usage among European countries.
+This dashboard shows the current state of EV usage among European countries.
 
 ## Running the App
 To run the dashboard make sure you have a valid docker installation on machine. Run "docker compose up" in the root directory of the dashboard where the docker-compose.yml file is located (eg. in DSS_Dashboard/)
