@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import requests
-from load_db import load_data_to_db
+
+
 def get_outlier_indices_IQR_method(data:np.array) -> np.array:
     q1 = np.percentile(data, 25)
     q3 = np.percentile(data, 75)
@@ -16,16 +17,10 @@ def get_outlier_indices_IQR_method(data:np.array) -> np.array:
 
 
 def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df.columns = df.iloc[1]
-    df.columns.name = 'Index'
-
-    df = df[2:]
-    df.reset_index(drop=True, inplace=True)
     df.rename({'Recharging Power / Recharging Point': 'Power per station (kW)', 'Recharging Power / Total Light Duty PEV fleet': 'Power available per fleet'}, axis=1, inplace=True)
     
-    df['Power per station (kW)'] = df['Power per station (kW)'].str.replace(',', '.').astype(float)
-    df['Power available per fleet'] = df['Power available per fleet'].str.replace(',', '.').astype(float)
+    df.loc[:, 'Power per station (kW)'] = df['Power per station (kW)'].str.replace(',', '.').astype(float)
+    df.loc[:, 'Power available per fleet'] = df['Power available per fleet'].str.replace(',', '.').astype(float)
     df = df.astype({'Country': 'str', 'Total Recharging Power Output (kW)': 'int32', 'Recharging Points': 'int32', 'Light Duty PEV Fleet': 'int32'}, copy=False)
 
 
