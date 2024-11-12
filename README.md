@@ -9,7 +9,7 @@ This dashboard shows the current state of EV usage among European countries.
 
 ## Running the App
 To run the dashboard make sure you have a valid docker installation on machine. Run "docker compose up" in the root directory of the dashboard where the docker-compose.yml file is located (eg. in DSS_Dashboard/)
-## !!! Docker compose takes long (because of the data preparation), please have patience
+### !!! Docker compose takes long (because of the data preparation), please have patience
 
 ### Link to the Codebase: 
 https://github.com/ND-code-ai/DSS_dashboard/tree/main
@@ -17,7 +17,7 @@ https://github.com/ND-code-ai/DSS_dashboard/tree/main
 ### Datasets: available under 'data'-folder
 ### Other links: NA
 
-## Data Collection and Preparation
+## Data - Collection, Preparation and Visualization
     app.py
     Sets up the dashboard and loads the plots
     
