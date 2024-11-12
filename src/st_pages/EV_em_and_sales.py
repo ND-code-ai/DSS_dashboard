@@ -239,7 +239,7 @@ def main():
             
     full_chart_17_up = alt.layer(bar_chart3, line_chart2).resolve_scale(
         y='independent'
-    )
+    ).configure(background='#FFFFFF')
             
     full_chart_17_up
         
