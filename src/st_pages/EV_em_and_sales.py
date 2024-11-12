@@ -144,7 +144,6 @@ def main():
 
     # Left joining the data on emissions per country per year and data on new EVs and total new cars per country per year
     df_all = df_em.merge(df_EV, how='left', on=['Country', 'Year'])
-    df_all
 
     # Checking data types of dataframe
     print(df_all.dtypes)
@@ -156,7 +155,6 @@ def main():
     # Turning Nr_of_new_EVs into an integer for easier working with the data
     df_all['Nr_of_new_EVs'] = df_all['Nr_of_new_EVs'].astype('str').str.replace(".", "") # Turning it into a string and removing the thousands seperators
     df_all['Nr_of_new_EVs'] = df_all['Nr_of_new_EVs'].replace(":", np.nan).astype('float').astype('Int64') # due to NaN's, turning the variable first into floats necessary
-    print(df_all.dtypes)  
     
     # Cutting the years at 2017, as the metadata states that data is only comparable for 2000 - 2016 and for 2017 - now
         # Subsetting data for years 2000 - 2016
