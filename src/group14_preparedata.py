@@ -197,7 +197,14 @@ def preprocess_EV_em_and_sales(df: pd.DataFrame) -> pd.DataFrame:
     df_all['Nr_of_new_EVs'] = df_all['Nr_of_new_EVs'].astype('str').str.replace(".", "") # Turning it into a string and removing the thousands seperators
     df_all['Nr_of_new_EVs'] = df_all['Nr_of_new_EVs'].replace(":", np.nan).astype('float').astype('Int64') # due to NaN's, turning the variable first into floats necessary
     
-    return df_all
+    # Cutting the years at 2017, as the metadata states that data is only comparable for 2000 - 2016 and for 2017 - now
+        # Subsetting data for years 2000 - 2016
+    df_00_16 = df_all[df_all['Year'] <= 2016]
+
+        # Subsetting data for years 2017 - now
+    df_17_up = df_all[df_all['Year'] >= 2017]
+    
+    return df_17_up
 
 def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
     pass
@@ -245,8 +252,8 @@ def main():
     #emissions_data = preprocess_emissions_data('data/reduced_energyc1.csv')
     #all_dataframes['Emissions'] = emissions_data
     
-    #df_all = preprocess_EV_sales(df_all)
-    #all_dataframes['EV emissions and sales'] = df_all
+    #df_17_up = preprocess_EV_sales(df_17_up)
+    #all_dataframes['EV emissions and sales'] = df_17_up
 
     noc_data = pd.read_csv('data/scraped_NoC_data.csv')
     cleaned_noc_data = preprocess_EV_infrastructure(noc_data)
