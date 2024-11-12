@@ -9,6 +9,7 @@ This dashboard shows the current state of EV usage among European countries.
 
 ## Running the App
 To run the dashboard make sure you have a valid docker installation on machine. Run "docker compose up" in the root directory of the dashboard where the docker-compose.yml file is located (eg. in DSS_Dashboard/)
+## !!! Docker compose takes long (because of the data preparation), please have patience
 
 ### Link to the Codebase: 
 https://github.com/ND-code-ai/DSS_dashboard/tree/main
@@ -28,7 +29,7 @@ https://github.com/ND-code-ai/DSS_dashboard/tree/main
     Loads the files prepared by group14-preparedata.py and saves them in the postgre database in the docker container.
 
     DSS_dashboard\src\st_pages (folder)
-    Contains python files that generate the plots for each KPI:
+    Contains python files that generate the plots for each KPI on separate streamlit pages:
         emissions.py
         Bar chart of total electric energy consumption per European country in 2023.
 
