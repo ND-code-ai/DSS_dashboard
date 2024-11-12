@@ -13,9 +13,9 @@ services:
       - ./src:/src
     restart: unless-stopped
     depends_on:
-      - db_dashboard
+      - postgres
 
-  db_dashboard:
+  postgres:
     image: postgres:latest
     environment:
       POSTGRES_USER: student

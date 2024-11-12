@@ -1,6 +1,6 @@
 import streamlit as st
 import altair as alt
-from st_pages import EV_Infrastructure, EVSales, emissions, green_energy, home, EV_Prices_DE, EV_em_and_sales
+from st_pages import EV_Infrastructure, EVSales, emissions,home, EV_Prices_DE, EV_em_and_sales
 from load_db import load_data_to_db, load_data_from_db
 import group14_preparedata as prep
 import pandas as pd
@@ -11,20 +11,20 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded")
 
-def get_all_tables(conn, kpis) -> dict[str, pd.DataFrame]:
-    tables = {}
+def get_all_data(table_names: list[str]) -> dict[str, pd.DataFrame]:
+    all_tables = {}
 
-    for kpi in kpis:
-        tables[kpi] = load_data_from_db(conn, kpi)
+    for table_name in table_names:
+        all_tables[table_name] = load_data_from_db(table_name)
 
-    return tables
+    return all_tables
 
-kpis = ["EV infrastructure", "EV sales", "EV prices", "Fossil fuel emissions by cars", "Green energy usage", "EV Emissions and sales"]
-all_tables = prep.main()
-conn = st.connection("postgresql", type="sql")
-print(all_tables)
-load_data_to_db(conn, all_tables)
-tables = get_all_tables(conn, kpis)
+kpis = ["EV infrastructure", "EV sales", "EV prices", "Fossil fuel emissions by cars", "EV Emissions and sales"]
+table_names = [kpi.replace(" ", "") for kpi in kpis]
+all_cleaned_tables = prep.main()
+
+load_data_to_db(all_cleaned_tables)
+all_data = get_all_data(table_names)
 
 alt.themes.enable("dark")
 col = st.columns((1.5, 6, 2), gap='medium')
@@ -40,24 +40,20 @@ if selected_kpi == "---":
     
 if selected_kpi == "EV infrastructure":
     st.title("EV Infrastructure")
-    EV_Infrastructure.main(all_tables["EV infrastructure"])
+    EV_Infrastructure.main(all_data[table_names[0]])
 
 elif selected_kpi == "EV sales":
     st.title("Increasing EV adoption - EV Sales")
-    EVSales.main(all_tables["EV sales"])
+    EVSales.main(all_data[table_names[1]])
 
 elif selected_kpi == "Fossil fuel emissions by cars":
     st.title("Increasing EV adoption - Fossil fuel emissions by cars")
-    emissions.main(all_tables["Fossil fuel emissions by cars"])
-
-elif selected_kpi == "Green energy usage":
-    st.title("Increasing EV adoption - Green energy usage")
-    green_energy.main(all_tables["Green energy usage"])
+    emissions.main(all_data[table_names[2]])
 
 elif selected_kpi == "EV prices":
     st.title("Increasing EV adoption - EV prices")
-    EV_Prices_DE.main(all_tables["EV prices"])
+    EV_Prices_DE.main(all_data[table_names[4]])
 
 elif selected_kpi == "EV Emissions and sales":
     st.title("EV Emissions and sales")
-    EV_em_and_sales.main(all_tables["EV Emissions and sales"])
+    EV_em_and_sales.main(all_data[table_names[5]])

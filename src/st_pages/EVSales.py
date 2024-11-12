@@ -4,46 +4,7 @@ import altair as alt
 import numpy as np
 import requests
 
-def main():
-    # URL to fetch the data from Eurostat
-    url = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_eqr_carpda/?format=JSON&lang=en&freq=A&unit=NR&mot_nrg=ELC&geo=EU27_2020&geo=BG&geo=CZ&geo=DK&geo=DE&geo=EE&geo=IE&geo=EL&geo=ES&geo=FR&geo=HR&geo=IT&geo=CY&geo=LV&geo=LT&geo=LU&geo=HU&geo=MT&geo=NL&geo=AT&geo=PL&geo=PT&geo=RO&geo=SI&geo=SK&geo=FI&geo=SE&geo=IS&geo=LI&geo=NO&geo=CH&geo=UK&geo=BA&geo=ME&geo=MD&geo=GE&geo=AL&geo=TR&geo=UA&geo=XK&geo=BE&time=2012&time=2013&time=2014&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023"
-
-    # Request the data
-    response = requests.get(url)
-
-    # Parse the JSON response
-    data = response.json()
-
-    values = data['value']
-    geo_labels = data['dimension']['geo']['category']['label']
-    geo_indices = data['dimension']['geo']['category']['index']
-    time_labels = data['dimension']['time']['category']['label']
-    time_indices = data['dimension']['time']['category']['index']
-
-    # Create a sorted list of full country names based on the index
-    sorted_countries = [geo_labels[code] for code in sorted(geo_indices, key=geo_indices.get)]
-    sorted_times = sorted(time_indices, key=time_indices.get)
-
-    # Create an empty DataFrame to store the data with full country names
-    df = pd.DataFrame(index=sorted_countries, columns=sorted_times)
-
-    # Populate the DataFrame with the values
-    for index, value in values.items():
-        # Since the index is a single key, we need to map it to the correct country and time
-        country_idx = int(index) // len(time_indices)  # Determinec which country the value belongs to
-        time_idx = int(index) % len(time_indices)      # Determine which time period the value belongs to
-
-        # Get the actual country name and time label
-        country_code = list(geo_indices.keys())[country_idx]
-        country = geo_labels[country_code]  # Use full country name
-        time = time_labels[list(time_indices.keys())[time_idx]]
-
-        # Insert the value into the correct place in the DataFrame
-        df.loc[country, time] = value
-
-    # Replace 0 values with NaN
-    df.replace(0, np.nan, inplace=True)
-
+def main(df: pd.DataFrame) -> None:
     with st.container():
         # Input field for selecting the country
         country = st.text_input("Please enter an European country (e.g. Spain) for a tailored bar chart (case sensitive!):", "European Union")
@@ -134,8 +95,3 @@ def main():
         else:
             # Show a message if no countries are selected or if filtered_df is empty
             st.warning("Please select at least one country to view the chart.")
-
-
-
-
-

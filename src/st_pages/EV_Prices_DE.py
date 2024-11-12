@@ -2,7 +2,7 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 
-def main():
+def main(df: pd.DataFrame) -> None:
 
     # Load the data
     df = pd.read_csv('data/EV_cars.csv')

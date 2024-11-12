@@ -6,7 +6,7 @@ import numpy as np
 
 import geopandas as gpd
 
-def main():
+def main(df: pd.DataFrame) -> None:
    col = st.columns((8, 2), gap='small')
    df = pd.read_csv("data/cleaned_NoC_data.csv")
     

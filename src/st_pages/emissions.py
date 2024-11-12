@@ -5,10 +5,7 @@ from pyecharts.charts import Bar
 from pyecharts import options as opts
 from streamlit_echarts import st_pyecharts
 
-def main():
-    csv_file_path = 'data/reduced_energyc1.csv'
-    df = pd.read_csv(csv_file_path)
-    
+def main(df: pd.DataFrame) -> None:
     selected_columns = df[['ID', 'Country', 'z (Wh/km)', 'year']]
     data_2023 = selected_columns[selected_columns['year'] == 2023]
 
