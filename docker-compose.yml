@@ -12,3 +12,24 @@ services:
     volumes:
       - ./src:/src
     restart: unless-stopped
+    depends_on:
+      - db_dashboard
+
+  db_dashboard:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: student
+      POSTGRES_PASSWORD: infomdss
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U student" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres_data:

@@ -1,7 +1,8 @@
 import streamlit as st
 import altair as alt
 from st_pages import EV_Infrastructure, EVSales, emissions, green_energy, home, EV_Prices_DE, EV_em_and_sales
-from load_db import load_data_from_db
+from load_db import load_data_to_db, load_data_from_db
+import group14_preparedata as prep
 import pandas as pd
 
 st.set_page_config(
@@ -10,16 +11,20 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded")
 
-def gather_tables(kpis: list[str]) -> dict[str, pd.DataFrame]:
+def get_all_tables(conn, kpis) -> dict[str, pd.DataFrame]:
     tables = {}
 
     for kpi in kpis:
-        tables[kpi] = load_data_from_db(kpi)
-    
+        tables[kpi] = load_data_from_db(conn, kpi)
+
     return tables
 
 kpis = ["EV infrastructure", "EV sales", "EV prices", "Fossil fuel emissions by cars", "Green energy usage", "EV Emissions and sales"]
-all_tables = gather_tables(kpis)
+all_tables = prep.main()
+conn = st.connection("postgresql", type="sql")
+print(all_tables)
+load_data_to_db(conn, all_tables)
+tables = get_all_tables(conn, kpis)
 
 alt.themes.enable("dark")
 col = st.columns((1.5, 6, 2), gap='medium')

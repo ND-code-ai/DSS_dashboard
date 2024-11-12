@@ -6,6 +6,8 @@ WORKDIR /src/
 
 COPY src ./
 
+RUN apt-get update && apt-get install -y postgresql-client
+
 RUN pip3 install -r requirements.txt
 
 EXPOSE 8501

@@ -7,3 +7,5 @@ sqlalchemy
 scikit-learn
 geopandas
 plotly.express
+matplotlib
+psycopg2-binary

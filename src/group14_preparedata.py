@@ -34,6 +34,7 @@ def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
     print("\nSome outlier examples:")
     print("Power per station (kW): ", df.loc[get_outlier_indices_IQR_method(df['Power per station (kW)']), 'Country'].values)
     print("Power available per fleet: ", df.loc[get_outlier_indices_IQR_method(df['Power available per fleet']), 'Country'].values)
+    
     return df
 
 def preprocess_emissions_data(csv_file_path: str) -> pd.DataFrame: #dataframe
@@ -57,10 +58,7 @@ def preprocess_EV_sales(df: pd.DataFrame) -> pd.DataFrame:
 def preprocess_EV_infrastructure(df: pd.DataFrame) -> pd.DataFrame:
     pass
 
-def main():
-    all_dataframes = {}
-    
-    ### Sales Data
+def scrape_sales_data() -> pd.DataFrame:
     url = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/road_eqr_carpda/?format=JSON&lang=en&freq=A&unit=NR&mot_nrg=ELC&geo=EU27_2020&geo=BG&geo=CZ&geo=DK&geo=DE&geo=EE&geo=IE&geo=EL&geo=ES&geo=FR&geo=HR&geo=IT&geo=CY&geo=LV&geo=LT&geo=LU&geo=HU&geo=MT&geo=NL&geo=AT&geo=PL&geo=PT&geo=RO&geo=SI&geo=SK&geo=FI&geo=SE&geo=IS&geo=LI&geo=NO&geo=CH&geo=UK&geo=BA&geo=ME&geo=MD&geo=GE&geo=AL&geo=TR&geo=UA&geo=XK&geo=BE&time=2012&time=2013&time=2014&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023"
     response = requests.get(url)
     data = response.json()
@@ -90,6 +88,12 @@ def main():
         df.loc[country, time] = value
     
     sales_data = df
+
+    return sales_data
+def main():
+    all_dataframes = {}
+    
+    sales_data = scrape_sales_data()
     cleaned_sales_data = preprocess_EV_sales(sales_data)
     all_dataframes['EV sales'] = cleaned_sales_data
     ### Sales data
@@ -102,11 +106,8 @@ def main():
     all_dataframes['EV infrastructure'] = cleaned_noc_data
 
     # insert other preprocessing functions and dataframes here
+    print(cleaned_noc_data.head())
+    return all_dataframes
 
-    load_data_to_db(all_dataframes)
-
-
-if __name__ == '__main__':
-    main()
 
    
