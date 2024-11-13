@@ -48,8 +48,7 @@ def main(df: pd.DataFrame) -> None:
         
         st.altair_chart(final_chart_1)
         
-        #df['Power available per fleet'] = np.log(df['Power available per fleet'])
-        # plot power available per station against power per fleet
+      
         bubble_chart_2 = alt.Chart(df).mark_circle().encode(
             x='Power per station (kW)',
             y='Power available per fleet',
@@ -62,13 +61,13 @@ def main(df: pd.DataFrame) -> None:
             height=650,
         ).interactive()
 
-        #bubble_chart.encoding.x.scale = alt.Scale(domain=[df['Recharging Points'].min(), df['Recharging Points'].max()])
+       
 
         text_labels_2 = alt.Chart(df).mark_text(
             align='center',
             baseline='top',
             dy=15,
-            color='white'  # Adjust this value to position the text below the bubble
+            color='white'  
         ).encode(
             x='Power per station (kW)',
             y='Power available per fleet',
@@ -78,7 +77,7 @@ def main(df: pd.DataFrame) -> None:
         
         st.altair_chart(final_chart_2)
         st.write("<h1 style='font-size: 25px;'>Interactive chloropleth map of charging stations in europe</h1>", unsafe_allow_html=True)
-        # perhaps move to a combining dataframes script
+        
         geo_df = gpd.read_file("data/geodata/europe.geojson")
        
         

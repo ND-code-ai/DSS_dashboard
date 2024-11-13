@@ -6,9 +6,6 @@ import altair as alt
 
 def main(df_em: pd.DataFrame) -> None:
 
-
-
- 
     # Exploring the trend of emissions over the years for each country
     # Bar plots
     
@@ -16,7 +13,6 @@ def main(df_em: pd.DataFrame) -> None:
     input_dropdown = alt.binding_select(options=lst, name='Country ')
     selection = alt.selection_point(fields=['Country'], bind=input_dropdown, value = 'Austria')
 
-        
     # A peculiar trend was shown around the year 2018 for each country that had data from before and after 2018. When analysing the metadata, it appeared a new 
     # measuring system was used such that only the years 2000-2016 are comparable with each other and the years 2017 and up are comparable with each other.
     # To obtain reliable insights regarding the trend, later on the data will be split for these two time periods.
@@ -55,11 +51,17 @@ def main(df_em: pd.DataFrame) -> None:
             
     full_chart_17_up = alt.layer(bar_chart3, line_chart2).resolve_scale(
         y='independent'
-    ).configure(background='#FFFFFF')
+    ).configure(background='#FFFFFF'
+    ).configure_axis(
+    labelColor='#000000', 
+    titleColor='#000000'   
+    ).configure_title(
+    color='#000000' 
+    )
             
     full_chart_17_up
         
     st.altair_chart(full_chart_17_up)
-    st.write("<h1 style='font-size: 25px;'>Interactive graph depicting the relationship between average C02 emissions from new passenger cars and number of new EVs</h1>", unsafe_allow_html=True)
+    
     
     

@@ -33,8 +33,7 @@ def main(df: pd.DataFrame) -> None:
                 height=600  
             )
 
-        final_chart = chart
-        st.altair_chart(final_chart)
+            st.altair_chart(chart)
     
     with st.container():
 
